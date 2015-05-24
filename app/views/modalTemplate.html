@@ -1,0 +1,66 @@
+<script type="text/ng-template" id ='modalTemplate.html'>
+    <div class="row dial-row">
+        <div>{{numbers}}</div>
+    </div>
+
+    <div class="row">
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(9)' type="submit"  value="9"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(8)' type="submit"  value="8"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(7)' type="submit"  value="7"/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(6)' type="submit"  value="6"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(5)' type="submit"  value="5"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(4)' type="submit"  value="4"/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(3)' type="submit"  value="3"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(2)' type="submit"  value="2"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input ng-click='pushNumber(1)' type="submit"  value="1"/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="dial-row col-lg-4">
+            <input type="submit" value="*"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input  ng-click='pushNumber(0)' type="submit" value="0"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input type="submit" value="#"/>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="dial-row col-lg-4">
+            <input type="submit" value=""/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input type="submit" value="Call"/>
+        </div>
+        <div class="dial-row col-lg-4">
+            <input ng-click='deleteNumber()' type="submit" value="x"/>
+        </div>
+    </div>
+
+</script>

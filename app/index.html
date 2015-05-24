@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>My AngularJS App</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <script src="http://cdn.pubnub.com/pubnub.js"></script>
+
+</head>
+<body ng-app="myApp">
+  <ul class="menu">
+    <li><a ui-sref="main">Main View</a></li>
+    <li><a ui-sref="other">Other</a></li>
+  </ul>
+
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+  <div ui-view></div>
+
+
+  <!-- In production use:
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+  -->
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/ui-router/release/angular-ui-router.js"></script>
+  <script src="bower_components/angular-ui/build/angular-ui-ieshiv.js"></script>
+  <script src="bower_components/angular-ui/build/angular-ui.js"></script>
+  <script src="bower_components/bootstrap-ui/src/modal/modal.js"></script>
+  <script src="ui-bootstrap-tpls-0.11.0.min.js"></script>
+  <script src="app.js"></script>
+  <script src="controllers/ChatCtrl.js"></script>
+  <script src="services/channels.js"></script>
+  <script src="services/chatService.js"></script>
+  <script src="services/pubNub.js"></script>
+</body>
+</html>
