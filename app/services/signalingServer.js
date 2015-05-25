@@ -1,41 +1,58 @@
-angular.module('myApp').factory('signalingServer', ['chat','pubNub','channels', function (chat, pubNub, channels) {
-    var connections = [];
+angular.module('myApp').factory('signalingServer', ['chat','channels','$rootScope', function (chat, channels, $rootScope) {
 
    return{
         connect: function(c){
             chat.join({
-                name:'signaling server',
-                callback:function(message){
-                    if(message.to == c.client){
+                channel: 'signaling server',
+                callback: function(m){
 
+                    if(m.status == 200){ //Invitation
+                        chat.say({
+                            channel: m.to,
+                            message:m
+                        })
+                    }else if(m.status == 201){ //Accept call
+                        chat.say({
+                            channel: m.to,
+                            message:{
+                                text: m.from+  ' accepted your call',
+                                from: m.from,
+                                status: 201
+                            }
+                        });
+                    }else if(m.status == 204){//Reject call
+                        chat.say({
+                            channel: m.to,
+                            message:{
+                                text: m.from+' rejected your call',
+                                from: m.from,
+                                status:204
+                            }
+                        })
+                    }else if(m.status == 410){ //End call
+                        chat.publish({
+                            channel: m.channel,
+                            message:{
+                                text: m.from+' ended call',
+                                from: m.from,
+                                status:410
+                            }
+                        });
+                        chat.leave({ //Leave chat room
+                            channel: e.from
+                        })
                     }
                 }
-            })
-        } ,
-       acceptCall : function(a){
-           chat.publish({
-               channel:'signaling server',
-               status:200,
-               client:a.client
+            });
+
+        },
+       initChannel:function(c){
+           chat.join({
+               channel: c.channel,
+               callback: c.callback
            });
-       },
-       rejectCall : function(r){
-           chat.publish({
-               channel:'signaling server',
-               status:403,
-               client:r.client
-           })
-       },
-       endCall:function(e){
-           chat.publish({
-               channel:'signaling server',
-               status:410,
-               client:e.client
-           });
-           chat.leave({
-               channel: e.client
-           })
-       },
+           channels.add(c.from);
+       }
 
    }
 }]);

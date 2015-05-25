@@ -8,6 +8,7 @@ angular.module('myApp').factory('channels', ['$http', function ($http) {
             'X-Parse-Application-Id': appKey,
             'X-Parse-REST-API-Key': apiKey
         };
+    var channels = [];
 
     return {
         get: function () {
@@ -33,6 +34,10 @@ angular.module('myApp').factory('channels', ['$http', function ($http) {
                 url:url+'/'+id,
                 headers:headers
             })
+        },
+        add:function(c){
+            channels.push(c);
+            console.log(channels);
         }
     };
 } ]);

@@ -3,8 +3,6 @@ angular.module('myApp').factory('chat', ['pubNub', function (pubNub){
     return {
         say: function (s) {
 
-            s.message.id = pubNub.getUiid();
-
             pubNub.publish({
                 channel: s.channel,
                 message: s.message

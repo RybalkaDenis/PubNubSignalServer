@@ -1,108 +1,120 @@
-angular.module('myApp').controller('ChatCtrl',function($scope, $modal){
+angular.module('myApp').controller('ChatCtrl',function($rootScope, $scope, $modal, signalingServer){
+
+    $scope.client = (Math.random()*10^0).toString()+(Math.random()*10^0).toString()+(Math.random()*10^0).toString();
 
     $scope.showModal = function(options){
         $scope.$modalInstance = $modal.open({
-            templateUrl:'modalTemplate.html',
+            templateUrl:options.template,
             scope:$scope,
             size:'sm',
-            controller:'ModalCtrl'
+            controller:'ModalCtrl',
+            resolve:{
+                message : function(){
+                    return options.message || null;
+                }
+            }
         });
+    };
+
+    $scope.startACall = function(){
+        var options = {
+            template :'modalTemplate.html'
+        }
+        $scope.showModal(options);
     }
+
+    signalingServer.connect({
+        channel:'signaling server',
+        from:$scope.client
+    });
+
+    signalingServer.initChannel({
+        channel:$scope.client,
+        callback:function(m){
+            if(m.status == 200){
+                var options = {
+                    message:m,
+                    template:'inviteModal.html'
+                };
+                $scope.showModal(options);
+            }
+            if(m.status == 201){
+                 options = {
+                    message:m,
+                    template:'acceptModal.html'
+                };
+                $scope.showModal(options);
+            }
+            if(m.status == 204){
+                options = {
+                    message:m,
+                    template:'rejectModal.html'
+                };
+                $scope.showModal(options);
+            }
+        }
+    });
 });
 
-angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','channels',
-    function($scope, $modalInstance, chat, channels){
-    $scope.client = '';
-    $scope.channels = [];
+angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','channels', 'signalingServer', 'message',
+    function($scope, $modalInstance, chat, channels, signalingServer, message){
+
+    $scope.message = message;
+    $scope.messages = [];
+    $scope.to = '';
 
     $scope.pushNumber = function(number){
-        if($scope.client.length < 4)
-            $scope.client +=number
+        if($scope.to.length < 3)
+            $scope.to +=number
     };
 
     $scope.deleteNumber = function(){
-        if($scope.client.length !== 0)
-            $scope.client = $scope.client.substring(0,$scope.client.length-1);
+        if($scope.to.length !== 0)
+            $scope.to = $scope.to.substring(0,$scope.to.length-1);
     };
 
-        channels.get()
-            .success(function (data) {
-                $scope.channels = data.results;
-
-                for (var i = 0; i < $scope.channels.length; i++) {
-
-                    $scope.channels[i].messages = [];
-
-                    (function (ii) {
-                        chat.join({
-                            roomName: $scope.channels[ii].name,
-                            callback: function (m) {
-                                channelCallback(m, $scope.channels[ii]);
-                            }
-                        });
-                    })(i);
-
-                }
-
-                if ($scope.channels.length > 0) {
-                    $scope.activeChannel = $scope.channels[0];
-                }
-
-            })
-            .error(function () {
-                alert('error');
-            });
-
-        function channelCallback(msg, room) {
-            if (!msg.name) {
-                msg.name = "Anonymous";
-            }
-            channels.messages.push(msg);
-        }
 
         $scope.makeCall = function(){
-            chat.join(
-                { name:'signaling server',
-                  callback: function(message){
-                if(message.status == 200 && message.client == $scope.client){
-                    chat.join($scope.client, function(message){
-                       $scope.messages.push(message.text);
-                    });
-                }else if(message.status == 403 && message.client == $scope.client){
-                    alert('Subscriber rejected your call')
-                }else if(message.status == 410 && message.client == $scope.client){
-
+           chat.say({
+               channel:'signaling server',
+                message:{
+                    text:$scope.text || null,
+                    status:200,
+                    to:$scope.to,
+                    from:$scope.client
                 }
-            }});
+            });
         };
 
-        $scope.connectToSignalingServer = function(){
-
-        };
 
         $scope.rejectCall = function(){
-            chat.publish({
+            chat.say({
                 channel:'signaling server',
-                status:403,
-                client:$scope.client
-            })
+                message:{
+                    from:$scope.client,
+                    status:204,
+                    to:$scope.message.from
+                }
+            });
         };
 
 
         $scope.acceptCall = function(){
           chat.join({
-              channel:'',
+              channel:$scope.message.from,
               callback:function(message){
                   $scope.messages.push(message)
               }
-          })
-        };
+          });
 
-        $scope.endCall = function(){
-            $scope.rejectCall();
-            channels.leave({
-                channel:''
-            });
+          chat.say({
+              channel:'signaling server',
+              message:{
+                  status:201,
+                  from:$scope.client,
+                  to:$scope.message.from
+              }
+          })
         };
 
 

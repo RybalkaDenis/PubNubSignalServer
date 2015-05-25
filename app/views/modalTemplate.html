@@ -1,6 +1,6 @@
 <script type="text/ng-template" id ='modalTemplate.html'>
     <div class="row dial-row">
-        <div>{{numbers}}</div>
+        <div>{{to}}</div>
     </div>
 
     <div class="row">
@@ -56,7 +56,7 @@
             <input type="submit" value=""/>
         </div>
         <div class="dial-row col-lg-4">
-            <input type="submit" value="Call"/>
+            <input type="submit" value="Call" ng-click="makeCall()"/>
         </div>
         <div class="dial-row col-lg-4">
             <input ng-click='deleteNumber()' type="submit" value="x"/>

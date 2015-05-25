@@ -2,7 +2,6 @@
 
 angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub'])
     .config(function($stateProvider, $urlRouterProvider) {
-
   $urlRouterProvider.otherwise("/state1");
 
   $stateProvider
