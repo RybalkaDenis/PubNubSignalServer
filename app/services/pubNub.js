@@ -19,7 +19,6 @@ angular.module('pubNub', [])
 
         return {
             subscribe: function (s) {
-                console.log(s.channel);
                 pubNub.subscribe({
                     channel: s.channel,
                     callback: function (m) {

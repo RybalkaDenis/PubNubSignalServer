@@ -1,4 +1,4 @@
-angular.module('myApp').factory('signalingServer', ['chat','channels','$rootScope', function (chat, channels, $rootScope) {
+angular.module('myApp').factory('signalingServer', ['chat','channels','$rootScope','lodash', function (chat, channels, $rootScope, lodash) {
 
    return{
         connect: function(c){
@@ -7,10 +7,10 @@ angular.module('myApp').factory('signalingServer', ['chat','channels','$rootScop
                 callback: function(m){
 
                     if(m.status == 200){ //Invitation
-                        chat.say({
+                       chat.say({
                             channel: m.to,
                             message:m
-                        })
+                        });
                     }else if(m.status == 201){ //Accept call
                         chat.say({
                             channel: m.to,

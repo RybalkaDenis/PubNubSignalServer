@@ -49,3 +49,30 @@
 .dial-row input:hover{
   background-color:red;
 }
+.chat-row{
+  position: fixed;
+  bottom:30px;
+  right:100px;
+}
+.chat-input{
+  float:left;
+  width:500px;
+  border:2px solid black;
+}
+.chat-submit{
+  float:left;
+  width:300px;
+}
+.chat-info{
+  float:left;
+  width:200px;
+}
+.metrics, .chat-window{
+  text-align: center;
+}
+.metrics{
+  border-right:3px solid black;
+}
+.chat-messages{
+  text-align: right;
+}

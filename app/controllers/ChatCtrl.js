@@ -1,6 +1,7 @@
-angular.module('myApp').controller('ChatCtrl',function($rootScope, $scope, $modal, signalingServer){
+angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $modal, signalingServer, notify, chat, lodash){
 
     $scope.client = (Math.random()*10^0).toString()+(Math.random()*10^0).toString()+(Math.random()*10^0).toString();
+    $scope.messages = [];
 
     $scope.showModal = function(options){
         $scope.$modalInstance = $modal.open({
@@ -16,12 +17,30 @@ angular.module('myApp').controller('ChatCtrl',function($rootScope, $scope, $moda
         });
     };
 
+    $scope.sendMessage = function(){
+        chat.say({
+            channel:$scope.client,
+            message: {
+                channel: $scope.client,
+                message: $scope.text
+            }
+        });
+        $scope.messages.push({
+            channel:$scope.client,
+            message:$scope.text
+        });
+        if($scope.messages.length>6){
+            $scope.messages.splice(0,1)
+        }
+        $scope.text = '';
+    };
+
     $scope.startACall = function(){
         var options = {
             template :'modalTemplate.html'
-        }
+        };
         $scope.showModal(options);
-    }
+    };
 
     signalingServer.connect({
         channel:'signaling server',
@@ -39,28 +58,27 @@ angular.module('myApp').controller('ChatCtrl',function($rootScope, $scope, $moda
                 $scope.showModal(options);
             }
             if(m.status == 201){
-                 options = {
-                    message:m,
-                    template:'acceptModal.html'
-                };
-                $scope.showModal(options);
+                notify({message: m.text });
+                chat.join({
+                    channel:m.from,
+                    callback:function(message){
+                        $scope.messages.push(message)
+                    }
+                });
+               // $scope.close();
             }
             if(m.status == 204){
-                options = {
-                    message:m,
-                    template:'rejectModal.html'
-                };
-                $scope.showModal(options);
+                notify({message: m.text });
+                $scope.dismiss();
             }
         }
     });
 });
 
-angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','channels', 'signalingServer', 'message',
-    function($scope, $modalInstance, chat, channels, signalingServer, message){
+angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','channels', 'signalingServer', 'message', 'notify',
+    function($scope, $modalInstance, chat, channels, signalingServer, message, notify){
 
     $scope.message = message;
-    $scope.messages = [];
     $scope.to = '';
 
     $scope.pushNumber = function(number){
@@ -96,6 +114,7 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
                     to:$scope.message.from
                 }
             });
+            $scope.dismiss();
         };
 
 
@@ -103,7 +122,13 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
           chat.join({
               channel:$scope.message.from,
               callback:function(message){
-                  $scope.messages.push(message)
+                  if(!message.status){
+                      $scope.messages.push(message)
+                  }
+                  if($scope.messages.length>6){
+                      $scope.messages.splice(0,1)
+                  }
+                  //inform messages are disallowed
               }
           });
 
@@ -114,8 +139,15 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
                   from:$scope.client,
                   to:$scope.message.from
               }
-          })
+          });
+            $scope.dismiss();
         };
 
+    $scope.dismiss = function(){
+        $modalInstance.dismiss();
+    };
+    $scope.close = function(){
+        $modalInstance.close();
+    };
 
 }]);

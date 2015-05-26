@@ -2,22 +2,41 @@
     <div class="header clearfix">
         <nav>
             <ul class="nav nav-pills pull-right">
-                <li role="presentation" class="active"><a href="#">Home</a></li>
+                <li role="presentation" class="active"><a class="btn btn-lg btn-success" ng-click="startACall()" role="button">Make a call</a></li>
                 <li role="presentation"><a href="#">About</a></li>
                 <li role="presentation"><a href="#">Contact</a></li>
             </ul>
         </nav>
-        <h3 class="text-muted">Project name</h3>
+        <h3 class="text-muted"> <h2>Your number is: {{client}}</h2></h3>
     </div>
 
     <div class="jumbotron">
-        <h1>Jumbotron heading</h1>
-        <h2>{{client}}</h2>
-        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-        <p><a class="btn btn-lg btn-success" ng-click="startACall()" role="button">Make a call</a></p>
+        <div class="row">
+            <div class="col-md-6 metrics">
+                <h4>Metrics will be placed here</h4>
+            </div>
+            <div class="col-md-6 chat-window">
+                <h4>Chat window</h4>
+                <div class='chat-messages' ng-repeat="message in messages">
+                    <span ng-show="message.channel == client">You: </span>
+                    <span  ng-show="message.channel != client">{{message.channel}}:</span>
+                    {{message.message}}
+                </div>
+            </div>
+        </div>
     </div>
+
+
 <div ng-include = "'views/modalTemplate.html'"></div>
 <div ng-include = "'views/acceptModal.html'"></div>
 <div ng-include = "'views/inviteModal.html'"></div>
 <div ng-include = "'views/rejectModal.html'"></div>
 </div> <!-- /container -->
+<div class="container">
+<div class="chat-row row">
+ <div class="chat-info"><h4>Chatting with:</h4></div>
+ <input class="chat-input" type="text" ng-model="text" placeholder="Say:"/>
+ <input class="chat-submit" type="submit" ng-click="sendMessage()"/>
+
+</div>
+</div>

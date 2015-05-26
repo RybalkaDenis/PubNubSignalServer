@@ -10,6 +10,8 @@
     "ui-router": "~0.2.15",
     "angular-ui": "~0.4.0",
     "bootstrap-ui": "~0.13.0",
-    "bootstrap": "~3.3.4"
+    "bootstrap": "~3.3.4",
+    "angular-notify": "~2.5.0",
+    "ng-lodash": "~0.2.3"
   }
 }

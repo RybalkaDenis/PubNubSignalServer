@@ -1,7 +1,10 @@
 'use strict';
 
-angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub'])
-    .config(function($stateProvider, $urlRouterProvider) {
+angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub', 'cgNotify', 'ngLodash'])
+    .config(function($stateProvider, $urlRouterProvider ) {
+
+
+
   $urlRouterProvider.otherwise("/state1");
 
   $stateProvider
@@ -14,4 +17,12 @@ angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub'])
         url: "/state2",
         templateUrl: "partials/state2.html"
       });
+}).run(function(notify){
+
+        notify.config({
+            templateUrl:'bower_components/angular-notify/angular-notify.html',
+            position:'right',
+            duration:3000
+        });
+
 });
