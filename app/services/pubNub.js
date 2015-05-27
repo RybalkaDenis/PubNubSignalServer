@@ -29,6 +29,7 @@ angular.module('pubNub', [])
                 });
             },
             publish: function (p) {
+                console.log(p, 'pubnub')
                 pubNub.publish({
                     channel: p.channel,
                     message: p.message

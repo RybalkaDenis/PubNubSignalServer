@@ -7,6 +7,7 @@ angular.module('myApp').factory('signalingServer', ['chat','channels','$rootScop
                 callback: function(m){
 
                     if(m.status == 200){ //Invitation
+                        console.log(m)
                        chat.say({
                             channel: m.to,
                             message:m

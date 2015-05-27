@@ -39,7 +39,7 @@
 }
 .dial-row div{
   width:70%;
-  height:40px;
+  height:60px;
   margin: 20px auto;
 }
 .dial-row input:not(:first-child){
@@ -47,7 +47,12 @@
   height:100%;
 }
 .dial-row input:hover{
-  background-color:red;
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-color: rgba(0, 0, 0, 0);
+  background-image: linear-gradient(rgb(0, 183, 234) 0%, rgb(0, 158, 195) 100%);
+  background-origin: padding-box;
+  background-size: auto;
 }
 .chat-row{
   position: fixed;
@@ -75,4 +80,55 @@
 }
 .chat-messages{
   text-align: right;
+}
+.head-dial-row div{
+  color: #fdffff;
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 74px;
+  height: 74px;
+  padding:7px;
+  background: rgb(71,99,133);
+  background: -moz-linear-gradient(top, rgba(71,99,133,1) 0%, rgba(22,48,83,1) 50%, rgba(6,35,71,1) 51%, rgba(0,32,68,1) 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(71,99,133,1)), color-stop(50%,rgba(22,48,83,1)), color-stop(51%,rgba(6,35,71,1)), color-stop(100%,rgba(0,32,68,1)));
+  background: -webkit-linear-gradient(top, rgba(71,99,133,1) 0%,rgba(22,48,83,1) 50%,rgba(6,35,71,1) 51%,rgba(0,32,68,1) 100%);
+  background: -o-linear-gradient(top, rgba(71,99,133,1) 0%,rgba(22,48,83,1) 50%,rgba(6,35,71,1) 51%,rgba(0,32,68,1) 100%);
+  background: -ms-linear-gradient(top, rgba(71,99,133,1) 0%,rgba(22,48,83,1) 50%,rgba(6,35,71,1) 51%,rgba(0,32,68,1) 100%);
+  background: linear-gradient(to bottom, rgba(71,99,133,1) 0%,rgba(22,48,83,1) 50%,rgba(6,35,71,1) 51%,rgba(0,32,68,1) 100%);
+}
+.digits{
+  position: relative;
+  color: #fdffff;
+  text-shadow: 0 -1px 2px rgba(0,0,0,0.9);
+  font-weight: 700;
+  font-size: 34px;
+  height: 43px;
+  line-height: 46px;
+  text-align: center;
+}
+.call input:hover{
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-color: rgb(138, 226, 52);
+  background-image: none;
+  background-origin: padding-box;
+  background-size: auto;
+  border-bottom-color: rgba(0, 100, 0, 0.8);
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-image-outset: 0px;
+  border-image-repeat: stretch;
+  border-image-slice: 100%;
+  border-image-source: none;
+  border-image-width: 1;
+  border-left-color: rgba(0, 100, 0, 0.8);
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-right-color: rgba(0, 100, 0, 0.8);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-top-color: rgba(0, 100, 0, 0.8);
+  border-top-style: solid;
+  border-top-width: 1px;
 }

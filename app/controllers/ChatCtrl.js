@@ -2,6 +2,7 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
 
     $scope.client = (Math.random()*10^0).toString()+(Math.random()*10^0).toString()+(Math.random()*10^0).toString();
     $scope.messages = [];
+    $scope.timingMetrics = [0];
 
     $scope.showModal = function(options){
         $scope.$modalInstance = $modal.open({
@@ -22,7 +23,8 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
             channel:$scope.client,
             message: {
                 channel: $scope.client,
-                message: $scope.text
+                message: $scope.text,
+                time: new Date()
             }
         });
         $scope.messages.push({
@@ -55,6 +57,7 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                     message:m,
                     template:'inviteModal.html'
                 };
+                if(m.from && !$scope.$modalInstance)
                 $scope.showModal(options);
             }
             if(m.status == 201){
@@ -62,7 +65,14 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                 chat.join({
                     channel:m.from,
                     callback:function(message){
-                        $scope.messages.push(message)
+                        $scope.messages.push(message);
+                        $scope.timingMetrics.push( new Date() - new Date (message.time ));
+                        if($scope.messages.length>6){
+                            $scope.messages.splice(0,1)
+                        }
+                        if($scope.timingMetrics.length>10){
+                            $scope.timingMetrics.splice(1,1);
+                        }
                     }
                 });
                // $scope.close();
@@ -73,12 +83,22 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
             }
         }
     });
+
+    $scope.labels = [1,2,3,4,5,6,7,8,9,10];
+    $scope.series = ['Delay in ms'];
+    $scope.data = [
+        $scope.timingMetrics
+    ];
+    $scope.onClick = function (points, evt) {
+        console.log(points, evt);
+    };
+
 });
 
-angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','channels', 'signalingServer', 'message', 'notify',
-    function($scope, $modalInstance, chat, channels, signalingServer, message, notify){
+angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','message',
+    function($scope, $modalInstance, chat, message){
 
-    $scope.message = message;
+    $scope.message =message;
     $scope.to = '';
 
     $scope.pushNumber = function(number){
@@ -124,9 +144,13 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
               callback:function(message){
                   if(!message.status){
                       $scope.messages.push(message)
+                      $scope.timingMetrics.push( new Date() - new Date (message.time ));
                   }
                   if($scope.messages.length>6){
                       $scope.messages.splice(0,1)
+                  }
+                  if($scope.timingMetrics.length>10){
+                      $scope.timingMetrics.splice(1,1);
                   }
                   //inform messages are disallowed
               }

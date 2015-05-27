@@ -12,6 +12,8 @@
     "bootstrap-ui": "~0.13.0",
     "bootstrap": "~3.3.4",
     "angular-notify": "~2.5.0",
-    "ng-lodash": "~0.2.3"
+    "ng-lodash": "~0.2.3",
+    "angular-chart.js": "~0.7.1",
+    "chartjs": "~1.0.2"
   }
 }

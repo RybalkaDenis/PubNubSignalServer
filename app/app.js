@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub', 'cgNotify', 'ngLodash'])
+angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub', 'cgNotify', 'ngLodash', 'chart.js'])
     .config(function($stateProvider, $urlRouterProvider ) {
 
 
