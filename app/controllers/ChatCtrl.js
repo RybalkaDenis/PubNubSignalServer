@@ -26,6 +26,61 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
         return encodeURI(s).split(/%..|./).length - 1;
     };
 
+    //Check metrics size and messages size
+    $scope.checkMetricsLength = function(){
+        if($scope.messages.length>6){
+            $scope.messages.splice(0,1)
+        }
+        if($scope.byteMetrics.length>10){
+            $scope.byteMetrics.splice(0,1);
+        }
+        if($scope.timingMetrics.length>10){
+            $scope.timingMetrics.splice(0,1);
+        }
+    };
+
+    //pushes messages and metrics to array to render it on the client side
+    $scope.pushMetrics = function(message){
+        console.log(message, 'push metrics');
+        if(!message.status){
+            $scope.messages.push(message);
+            $scope.timingMetrics.push( new Date() - new Date (message.time ));
+            $scope.byteMetrics.push($scope.byteCount(message.message));
+        }
+        if(message.status == 444){
+            $scope.messages.push(message);
+            $scope.timingMetrics.push(message.time);
+            $scope.byteMetrics.push($scope.byteCount(message.message));
+        }
+    };
+
+    //Send response with metrics
+    $scope.responseMetrics = function(message){
+        console.log(message, 'response');
+        if(!message.status) {
+            chat.say({
+                channel: $scope.client,
+                message: {
+                    time: new Date() - new Date (message.time ),
+                    message: message.message,
+                    status: 444,
+                    channel:$scope.client
+                }
+            });
+        }
+    };
+
+    //Invite user to chat
+    $scope.inviteToChat = function(message){
+        var options = {
+            message:message,
+            template:'inviteModal.html'
+        };
+        if(message.from && !$scope.$modalInstance)
+            $scope.showModal(options);
+    };
+
+
     //Public message in channel and push it to array that will be rendered to user
     $scope.sendMessage = function(){
         chat.say({
@@ -36,14 +91,6 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                 time: new Date()
             }
         });
-        $scope.messages.push({
-            channel:$scope.client,
-            message:$scope.text
-        });
-
-        if($scope.messages.length>6){
-            $scope.messages.splice(0,1)
-        }
         $scope.text = '';
     };
 
@@ -63,39 +110,24 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
     //Init pub-nub random channel assign callback to it
     signalingServer.initChannel({
         channel:$scope.client,
-        callback:function(m){
-            if(m.status == 200){ //Asc  subscriber for a communication
-                var options = {
-                    message:m,
-                    template:'inviteModal.html'
-                };
-                if(m.from && !$scope.$modalInstance)
-                $scope.showModal(options);
-            }
-            if(m.status == 201){ //Accept call
-                notify({message: m.text });
-                chat.join({
-                    channel:m.from,
-                    callback:function(message){
-                        $scope.messages.push(message);
-                        $scope.timingMetrics.push( new Date() - new Date (message.time ));
-                        $scope.byteMetrics.push($scope.byteCount(message.message));
+        callback:function(message){
 
-                        if($scope.messages.length>6){
-                            $scope.messages.splice(0,1)
-                        }
-                        if($scope.timingMetrics.length>10){
-                            $scope.timingMetrics.splice(0,1);
-                        }
-                        if($scope.byteMetrics.length>10){
-                            $scope.byteMetrics.splice(0,1);
-                        }
+            if(message.status == 200){ //Asc  subscriber for a communication
+                $scope.inviteToChat(message);
+
+            }else if(message.status == 201){ //Accept call
+                notify({message: message.text });
+                chat.join({
+                    channel:message.from,
+                    callback:function(message){
+                        $scope.checkMetricsLength(message);
+                        $scope.pushMetrics(message);
+                        $scope.responseMetrics(message);
                     }
                 });
-               // $scope.close();
             }
-            if(m.status == 204){ //Leave channel
-                notify({message: m.text });
+            if(message.status == 204){ //reject answer
+                notify({message: message.text });
                 $scope.dismiss();
             }
         }
@@ -163,24 +195,11 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
           chat.join({
               channel:$scope.message.from,
               callback:function(message){
-                  //inform messages are disallowed
-                  if(!message.status){
-                      $scope.messages.push(message);
-                      $scope.timingMetrics.push( new Date() - new Date (message.time ));
-                      $scope.byteMetrics.push($scope.byteCount(message.message));
-                  }
-                  if($scope.messages.length>6){
-                      $scope.messages.splice(0,1)
-                  }
-                  if($scope.timingMetrics.length>10){
-                      $scope.timingMetrics.splice(0,1);
-                  }
-                  if($scope.byteMetrics.length>10){
-                      $scope.byteMetrics.splice(0,1);
-                  }
+                  $scope.checkMetricsLength(message);
+                  $scope.pushMetrics(message);
+                  $scope.responseMetrics(message);
               }
           });
-
           chat.say({
               channel:'signaling server',
               message:{
