@@ -3,6 +3,7 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
     $scope.client = (Math.random()*10^0).toString()+(Math.random()*10^0).toString()+(Math.random()*10^0).toString();
     $scope.messages = [];
     $scope.timingMetrics = [];
+    $scope.byteMetrics = [];
 
 
     //Show modal windows size and template can be passed in options
@@ -20,6 +21,11 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
         });
     };
 
+    //Determine byte length of a string
+    $scope.byteCount = function(s) {
+        return encodeURI(s).split(/%..|./).length - 1;
+    };
+
     //Public message in channel and push it to array that will be rendered to user
     $scope.sendMessage = function(){
         chat.say({
@@ -34,6 +40,7 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
             channel:$scope.client,
             message:$scope.text
         });
+
         if($scope.messages.length>6){
             $scope.messages.splice(0,1)
         }
@@ -72,11 +79,16 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                     callback:function(message){
                         $scope.messages.push(message);
                         $scope.timingMetrics.push( new Date() - new Date (message.time ));
+                        $scope.byteMetrics.push($scope.byteCount(message.message));
+
                         if($scope.messages.length>6){
                             $scope.messages.splice(0,1)
                         }
                         if($scope.timingMetrics.length>10){
                             $scope.timingMetrics.splice(0,1);
+                        }
+                        if($scope.byteMetrics.length>10){
+                            $scope.byteMetrics.splice(0,1);
                         }
                     }
                 });
@@ -92,9 +104,10 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
 
     //Chart.js-AngularJs charts
     $scope.labels = [1,2,3,4,5,6,7,8,9,10];
-    $scope.series = ['Delay in ms'];
+    $scope.series = ['Delay in ms', 'Byte length of the message'];
     $scope.data = [
-        $scope.timingMetrics
+        $scope.timingMetrics,
+        $scope.byteMetrics
     ];
     $scope.onClick = function (points, evt) {
         console.log(points, evt);
@@ -154,6 +167,7 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
                   if(!message.status){
                       $scope.messages.push(message);
                       $scope.timingMetrics.push( new Date() - new Date (message.time ));
+                      $scope.byteMetrics.push($scope.byteCount(message.message));
                   }
                   if($scope.messages.length>6){
                       $scope.messages.splice(0,1)
@@ -161,7 +175,9 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
                   if($scope.timingMetrics.length>10){
                       $scope.timingMetrics.splice(0,1);
                   }
-
+                  if($scope.byteMetrics.length>10){
+                      $scope.byteMetrics.splice(0,1);
+                  }
               }
           });
 
