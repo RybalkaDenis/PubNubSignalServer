@@ -2,8 +2,10 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
 
     $scope.client = (Math.random()*10^0).toString()+(Math.random()*10^0).toString()+(Math.random()*10^0).toString();
     $scope.messages = [];
-    $scope.timingMetrics = [0];
+    $scope.timingMetrics = [];
 
+
+    //Show modal windows size and template can be passed in options
     $scope.showModal = function(options){
         $scope.$modalInstance = $modal.open({
             templateUrl:options.template,
@@ -18,6 +20,7 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
         });
     };
 
+    //Public message in channel and push it to array that will be rendered to user
     $scope.sendMessage = function(){
         chat.say({
             channel:$scope.client,
@@ -37,6 +40,7 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
         $scope.text = '';
     };
 
+    //Send request to signaling server
     $scope.startACall = function(){
         var options = {
             template :'modalTemplate.html'
@@ -49,10 +53,11 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
         from:$scope.client
     });
 
+    //Init pub-nub random channel assign callback to it
     signalingServer.initChannel({
         channel:$scope.client,
         callback:function(m){
-            if(m.status == 200){
+            if(m.status == 200){ //Asc  subscriber for a communication
                 var options = {
                     message:m,
                     template:'inviteModal.html'
@@ -60,7 +65,7 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                 if(m.from && !$scope.$modalInstance)
                 $scope.showModal(options);
             }
-            if(m.status == 201){
+            if(m.status == 201){ //Accept call
                 notify({message: m.text });
                 chat.join({
                     channel:m.from,
@@ -71,19 +76,21 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                             $scope.messages.splice(0,1)
                         }
                         if($scope.timingMetrics.length>10){
-                            $scope.timingMetrics.splice(1,1);
+                            $scope.timingMetrics.splice(0,1);
                         }
                     }
                 });
                // $scope.close();
             }
-            if(m.status == 204){
+            if(m.status == 204){ //Leave channel
                 notify({message: m.text });
                 $scope.dismiss();
             }
         }
     });
 
+
+    //Chart.js-AngularJs charts
     $scope.labels = [1,2,3,4,5,6,7,8,9,10];
     $scope.series = ['Delay in ms'];
     $scope.data = [
@@ -101,6 +108,7 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
     $scope.message =message;
     $scope.to = '';
 
+
     $scope.pushNumber = function(number){
         if($scope.to.length < 3)
             $scope.to +=number
@@ -111,7 +119,7 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
             $scope.to = $scope.to.substring(0,$scope.to.length-1);
     };
 
-
+    //Init a call to signaling server, asking for a communication with other user
         $scope.makeCall = function(){
            chat.say({
                channel:'signaling server',
@@ -124,7 +132,7 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
             });
         };
 
-
+        //reject incoming call
         $scope.rejectCall = function(){
             chat.say({
                 channel:'signaling server',
@@ -137,22 +145,23 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
             $scope.dismiss();
         };
 
-
+        //accept incoming call subscribe to user channel for communication
         $scope.acceptCall = function(){
           chat.join({
               channel:$scope.message.from,
               callback:function(message){
+                  //inform messages are disallowed
                   if(!message.status){
-                      $scope.messages.push(message)
+                      $scope.messages.push(message);
                       $scope.timingMetrics.push( new Date() - new Date (message.time ));
                   }
                   if($scope.messages.length>6){
                       $scope.messages.splice(0,1)
                   }
                   if($scope.timingMetrics.length>10){
-                      $scope.timingMetrics.splice(1,1);
+                      $scope.timingMetrics.splice(0,1);
                   }
-                  //inform messages are disallowed
+
               }
           });
 
