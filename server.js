@@ -1,5 +1,6 @@
 var express = require('express');
 var routes = require('./routes');
+var chat = require('./lib/chat');
 var app = express();
 
 

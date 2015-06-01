@@ -85,11 +85,6 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                 $scope.messages = response.messages;
                 $scope.timingMetrics =response.timingMetrics;
                 $scope.byteMetrics = response.byteMetrics;
-                $scope.data = [
-                    $scope.timingMetrics,
-                    $scope.byteMetrics,
-                    $scope.scale
-                ];
             })
             .error(function(){
                 console.log('Error has occurred')
@@ -158,18 +153,13 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                 $rootScope.connection = true;
                 notify({message: message.text });
                 chat.join({
-                    channel:message.from,
+                    channel:[message.from,$scope.client],
                     callback:function(message){
                         $http.get('/metrics')
                             .success(function(response){
                                 $scope.messages = response.messages;
                                 $scope.timingMetrics = response.timingMetrics;
                                 $scope.byteMetrics = response.byteMetrics;
-                                $scope.data = [
-                                    $scope.timingMetrics,
-                                    $scope.byteMetrics,
-                                    $scope.scale
-                                ];
                             })
                             .error(function(){
                                 console.log('Error has occurred')
@@ -189,10 +179,13 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
     $scope.labels = [1,2,3,4,5,6,7,8,9,10];
     $scope.series = ['Delay in ms', 'Byte length of the message', 'Scale'];
 
-    $scope.onClick = function (points, evt) {
-        console.log(points, evt);
-    };
-
+    $scope.$watch('messages',function(){
+        $scope.data = [
+            $scope.timingMetrics,
+            $scope.byteMetrics,
+            $scope.scale
+        ];
+    })
 });
 
 angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','message', '$http', '$rootScope',
@@ -242,19 +235,14 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
         $scope.acceptCall = function(){
             $rootScope.connection = true;
           chat.join({
-              channel:$scope.message.from,
+              channel:[message.from,$scope.client],
               callback:function(message){
+
                   $http.get('/metrics')
                       .success(function(response){
-
                           $scope.messages = response.messages;
-                          $scope.timingMetrics =response.timingMetrics;
+                          $scope.timingMetrics = response.timingMetrics;
                           $scope.byteMetrics = response.byteMetrics;
-                          $scope.data = [
-                              $scope.timingMetrics,
-                              $scope.byteMetrics,
-                              $scope.scale
-                          ];
                       })
                       .error(function(){
                           console.log('Error has occurred')
