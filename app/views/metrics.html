@@ -1,0 +1,27 @@
+<div class="container">
+
+    <div class="jumbotron">
+      <a class="btn btn-lg btn-success"  ui-sref="main" role="button">Hide logs</a>
+        <h1>Logs</h1>
+        <div class="row logs">
+            <table>
+                <thead>
+                <tr>
+                    <td>Message, bytes</td>
+                    <td>Delay to recipient, ms</td>
+                    <td>Encryption status</td>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in metricRows">
+                        <td>{{row.byteMetrics}}</td>
+                        <td>{{row.timingMetrics}}</td>
+                        <td>false</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+

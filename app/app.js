@@ -5,7 +5,7 @@ angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub', 'cgNotify', 'ngL
 
 
 
-  $urlRouterProvider.otherwise("/state1");
+  $urlRouterProvider.otherwise("/main");
 
   $stateProvider
       .state('main', {
@@ -13,9 +13,10 @@ angular.module('myApp', ['ui.router', 'ui.bootstrap', 'pubNub', 'cgNotify', 'ngL
         templateUrl: "views/mainView.html",
         controller:'ChatCtrl'
       })
-      .state('state2', {
-        url: "/state2",
-        templateUrl: "partials/state2.html"
+      .state('main.metrics', {
+        url: "/metrics",
+        templateUrl: "views/metrics.html",
+          controller:'ChatCtrl'
       });
 }).run(function(notify){
 

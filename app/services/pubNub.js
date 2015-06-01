@@ -11,8 +11,8 @@ angular.module('pubNub', [])
         pubNub = PUBNUB;
 
         keys = {
-            publishKey: 'pub-c-dc01811f-47bf-41cb-ba55-e9cd0359ba6f',
-            subscribeKey: 'sub-c-0e5c0668-5cef-11e3-a8bd-02ee2ddab7fe'
+            publishKey: 'demo',
+            subscribeKey: 'demo'
         };
 
         pubNub.init(keys);

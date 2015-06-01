@@ -1,10 +1,14 @@
-angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $modal, signalingServer, notify, chat, lodash){
+angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $modal, signalingServer, notify, chat, $http, $interval,$window, $state){
 
     $scope.client = (Math.random()*10^0).toString()+(Math.random()*10^0).toString()+(Math.random()*10^0).toString();
     $scope.messages = [];
     $scope.timingMetrics = [];
     $scope.byteMetrics = [];
-
+    $scope.scale=[0];
+    $scope.messageSize = '';
+    $scope.interval = '';
+    $scope.text ='';
+    $scope.timer = '';
 
     //Show modal windows size and template can be passed in options
     $scope.showModal = function(options){
@@ -20,54 +24,24 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
             }
         });
     };
-
-    //Determine byte length of a string
-    $scope.byteCount = function(s) {
+    $scope. byteCount = function (s) {
         return encodeURI(s).split(/%..|./).length - 1;
     };
 
-    //Check metrics size and messages size
-    $scope.checkMetricsLength = function(){
-        if($scope.messages.length>6){
-            $scope.messages.splice(0,1)
-        }
-        if($scope.byteMetrics.length>10){
-            $scope.byteMetrics.splice(0,1);
-        }
-        if($scope.timingMetrics.length>10){
-            $scope.timingMetrics.splice(0,1);
-        }
-    };
 
-    //pushes messages and metrics to array to render it on the client side
-    $scope.pushMetrics = function(message){
-        console.log(message, 'push metrics');
-        if(!message.status){
-            $scope.messages.push(message);
-            $scope.timingMetrics.push( new Date() - new Date (message.time ));
-            $scope.byteMetrics.push($scope.byteCount(message.message));
+    $scope.makeMessage = function(size){
+        if(size-$scope.byteCount($scope.text)>=100){
+            //Add 100 bytes to message
+            $scope.text +='ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss';
+            $scope.makeMessage(size)
+        }else if(size-$scope.byteCount($scope.text)>=10){
+            $scope.text+='ssssssssss';
+            $scope.makeMessage(size)
+        }else if(size-$scope.byteCount($scope.text)>=1) {
+            $scope.text += 's';
+            $scope.makeMessage(size)
         }
-        if(message.status == 444){
-            $scope.messages.push(message);
-            $scope.timingMetrics.push(message.time);
-            $scope.byteMetrics.push($scope.byteCount(message.message));
-        }
-    };
-
-    //Send response with metrics
-    $scope.responseMetrics = function(message){
-        console.log(message, 'response');
-        if(!message.status) {
-            chat.say({
-                channel: $scope.client,
-                message: {
-                    time: new Date() - new Date (message.time ),
-                    message: message.message,
-                    status: 444,
-                    channel:$scope.client
-                }
-            });
-        }
+        return $scope.text;
     };
 
     //Invite user to chat
@@ -80,18 +54,88 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
             $scope.showModal(options);
     };
 
+    //Scale charts on key press
+    $scope.scaleCharts = function(scale){
+        $scope.scale[0] = Math.ceil(($scope.timingMetrics.reduce(function(a,b){
+            return a+b;
+        })/$scope.timingMetrics.length-1)*scale);
+    };
 
     //Public message in channel and push it to array that will be rendered to user
     $scope.sendMessage = function(){
+        if(!$scope.messageSize){
+            notify({message: 'Set message size`' });
+            return
+        }
+        if(!$rootScope.connection){
+            notify({message: 'There is no active connection' });
+            return
+        }
         chat.say({
             channel:$scope.client,
             message: {
                 channel: $scope.client,
-                message: $scope.text,
+                message: $scope.makeMessage($scope.messageSize),
                 time: new Date()
             }
         });
         $scope.text = '';
+        $http.get('/metrics')
+            .success(function(response){
+                $scope.messages = response.messages;
+                $scope.timingMetrics =response.timingMetrics;
+                $scope.byteMetrics = response.byteMetrics;
+                $scope.data = [
+                    $scope.timingMetrics,
+                    $scope.byteMetrics,
+                    $scope.scale
+                ];
+            })
+            .error(function(){
+                console.log('Error has occurred')
+            });
+    };
+
+
+    //Open/close stream with messages
+    $scope.streamMessages = function(){
+
+        if(!$scope.interval){
+            notify({message: 'Set streaming interval`' });
+            return
+        }
+        if($scope.timer){
+            $interval.cancel($scope.timer);
+            $scope.timer = null;
+            notify({message: 'Stream is closed'});
+            return
+        }else{
+            $scope.timer = $interval($scope.sendMessage, $scope.interval);
+            notify({message: 'Stream is open' });
+        }
+    };
+
+    //Get metrics from mongoDB
+    $scope.getMetrics = function(){
+        $http.get('/allmetrics')
+            .success(function(response){
+                $scope.metricRows = response;
+                $state.go('main.metrics');
+
+            })
+    };
+
+    //Drop data base clear metrics collection in mongoDb
+    $scope.dropDataBase = function(){
+        var isSure = confirm('Do you want to drop database?');
+        if(isSure){
+            $http.delete('/metrics')
+                .success(function(response){
+                    if(response.ok == 1){
+                        notify({message: 'You\'ve deleted '+response.n+' messages from database' });
+                    }
+                })
+        }
     };
 
     //Send request to signaling server
@@ -102,11 +146,6 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
         $scope.showModal(options);
     };
 
-    signalingServer.connect({
-        channel:'signaling server',
-        from:$scope.client
-    });
-
     //Init pub-nub random channel assign callback to it
     signalingServer.initChannel({
         channel:$scope.client,
@@ -116,13 +155,25 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
                 $scope.inviteToChat(message);
 
             }else if(message.status == 201){ //Accept call
+                $rootScope.connection = true;
                 notify({message: message.text });
                 chat.join({
                     channel:message.from,
                     callback:function(message){
-                        $scope.checkMetricsLength(message);
-                        $scope.pushMetrics(message);
-                        $scope.responseMetrics(message);
+                        $http.get('/metrics')
+                            .success(function(response){
+                                $scope.messages = response.messages;
+                                $scope.timingMetrics = response.timingMetrics;
+                                $scope.byteMetrics = response.byteMetrics;
+                                $scope.data = [
+                                    $scope.timingMetrics,
+                                    $scope.byteMetrics,
+                                    $scope.scale
+                                ];
+                            })
+                            .error(function(){
+                                console.log('Error has occurred')
+                            })
                     }
                 });
             }
@@ -136,19 +187,16 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
 
     //Chart.js-AngularJs charts
     $scope.labels = [1,2,3,4,5,6,7,8,9,10];
-    $scope.series = ['Delay in ms', 'Byte length of the message'];
-    $scope.data = [
-        $scope.timingMetrics,
-        $scope.byteMetrics
-    ];
+    $scope.series = ['Delay in ms', 'Byte length of the message', 'Scale'];
+
     $scope.onClick = function (points, evt) {
         console.log(points, evt);
     };
 
 });
 
-angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','message',
-    function($scope, $modalInstance, chat, message){
+angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat','message', '$http', '$rootScope',
+    function($scope, $modalInstance, chat, message, $http, $rootScope){
 
     $scope.message =message;
     $scope.to = '';
@@ -192,12 +240,25 @@ angular.module('myApp').controller('ModalCtrl',['$scope','$modalInstance', 'chat
 
         //accept incoming call subscribe to user channel for communication
         $scope.acceptCall = function(){
+            $rootScope.connection = true;
           chat.join({
               channel:$scope.message.from,
               callback:function(message){
-                  $scope.checkMetricsLength(message);
-                  $scope.pushMetrics(message);
-                  $scope.responseMetrics(message);
+                  $http.get('/metrics')
+                      .success(function(response){
+
+                          $scope.messages = response.messages;
+                          $scope.timingMetrics =response.timingMetrics;
+                          $scope.byteMetrics = response.byteMetrics;
+                          $scope.data = [
+                              $scope.timingMetrics,
+                              $scope.byteMetrics,
+                              $scope.scale
+                          ];
+                      })
+                      .error(function(){
+                          console.log('Error has occurred')
+                      })
               }
           });
           chat.say({
