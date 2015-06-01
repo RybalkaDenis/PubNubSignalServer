@@ -1,66 +1,79 @@
 <script type="text/ng-template" id ='modalTemplate.html'>
-    <div class="row dial-row head-dial-row">
-        <div><h2>{{to}}</h2></div>
-    </div>
+    <div id="pubnub-phone">
 
-    <div class="row">
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(9)' type="submit"  value="9"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(8)' type="submit"  value="8"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(7)' type="submit"  value="7"/>
+        <!-- BACKGROUND -->
+        <div id="pubnub-background"></div>
+
+        <!-- DIALPAD -->
+        <div id="pubnub-dialpad">
+            <div id="pubnub-dialpad-header">{{to}}</div>
+            <div class="digit-cell" ng-click="pushNumber(1)">
+                <div class="digit">1</div>
+                <div class="letters">&nbsp;</div>
+            </div>
+            <div class="digit-cell digit-cell-mid" ng-click="pushNumber(2)">
+                <div class="digit">2</div>
+                <div class="letters">ABC</div>
+            </div>
+            <div class="digit-cell" ng-click="pushNumber(3)">
+                <div class=digit>3</div>
+                <div class=letters>DEF</div>
+            </div>
+            <div class="digit-cell" ng-click="pushNumber(4)">
+                <div class="digit">4</div>
+                <div class="letters">GHI</div>
+            </div>
+            <div class="digit-cell digit-cell-mid" ng-click="pushNumber(5)">
+                <div class="digit">5</div>
+                <div class="letters">JKL</div>
+            </div>
+            <div class="digit-cell" ng-click="pushNumber(6)">
+                <div class="digit">6</div>
+                <div class="letters">MNO</div>
+            </div>
+            <div class="digit-cell" ng-click="pushNumber(7)">
+                <div class="digit">7</div>
+                <div class="letters">PQRS</div>
+            </div>
+            <div class="digit-cell digit-cell-mid" ng-click="pushNumber(8)">
+                <div class=digit>8</div>
+                <div class=letters>TUV</div>
+            </div>
+            <div class="digit-cell" ng-click="pushNumber(9)">
+                <div class=digit>9</div>
+                <div class=letters>WXYZ</div>
+            </div>
+            <div class="digit-cell" action="dialpad-press" value="Star">
+                <div class="digit">&#8727;</div>
+                <div class="letters">&nbsp;</div>
+            </div>
+            <div class="digit-cell digit-cell-mid" ng-click="pushNumber(0)">
+                <div class="digit">0</div>
+                <div class="letters">+</div>
+            </div>
+            <div class="digit-cell" action="dialpad-press" value="Pound">
+                <div class=digit>#</div>
+                <div class=letters>&nbsp;</div>
+            </div>
+            <div class="digit-cell digit-cell-bottom">
+                <div class="letters">&nbsp;</div>
+                <div class="digit">&nbsp;</div>
+                <div class="letters">&nbsp;</div>
+            </div>
+            <div class="digit-cell digit-cell-mid digit-cell-bottom digit-cell-call" ng-click="makeCall()">
+                <div class="letters">&nbsp;</div>
+                <div class="digit digit-call">
+                    <div class="phone-icon-answer">&nbsp;</div>
+                    <div class="call-button-text-out">Call</div>
+                </div>
+                <div class="letters">&nbsp;</div>
+            </div>
+            <div class="digit-cell digit-cell-bottom" ng-click="deleteNumber()">
+                <div class=digit>x</div>
+                <div class="digit-cell-delete">&nbsp;</div>
+            </div>
+            <div class="pubnub-clear"></div>
+            <div id="pubnub-dialpad-footer">Your number: {{client}}</div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(6)' type="submit"  value="6"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(5)' type="submit"  value="5"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(4)' type="submit"  value="4"/>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(3)' type="submit"  value="3"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(2)' type="submit"  value="2"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input ng-click='pushNumber(1)' type="submit"  value="1"/>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="dial-row col-lg-4 digits">
-            <input type="submit" value="*"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input  ng-click='pushNumber(0)' type="submit" value="0"/>
-        </div>
-        <div class="dial-row col-lg-4 digits">
-            <input type="submit" value="#"/>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="dial-row col-lg-4 ">
-            <input type="submit" value=""/>
-        </div>
-        <div class="dial-row col-lg-4 call">
-            <input type="submit" value="Call" ng-click="makeCall()"/>
-        </div>
-        <div class="dial-row col-lg-4 delete-number">
-            <input ng-click='deleteNumber()' type="submit" value="x"/>
-        </div>
-    </div>
-
 </script>

@@ -1,10 +1,14 @@
-angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $modal, signalingServer, notify, chat, lodash){
+angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $modal, signalingServer, notify, chat, $interval){
 
     $scope.client = (Math.random()*10^0).toString()+(Math.random()*10^0).toString()+(Math.random()*10^0).toString();
     $scope.messages = [];
     $scope.timingMetrics = [];
     $scope.byteMetrics = [];
-
+    $scope.scale=[0];
+    $scope.messageSize = '';
+    $scope.interval = '';
+    $scope.text ='';
+    $scope.timer = '';
 
     //Show modal windows size and template can be passed in options
     $scope.showModal = function(options){
@@ -20,10 +24,30 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
             }
         });
     };
+    $scope.makeMessage = function(size){
+        if(size-$scope.byteCount($scope.text)>=100){
+            //Add 100 bytes to message
+            $scope.text +='ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss';
+            $scope.makeMessage(size)
+        }else if(size-$scope.byteCount($scope.text)>=10){
+            $scope.text+='ssssssssss';
+            $scope.makeMessage(size)
+        }else if(size-$scope.byteCount($scope.text)>=1) {
+            $scope.text += 's';
+            $scope.makeMessage(size)
+        }
+        return $scope.text;
+    };
 
     //Determine byte length of a string
     $scope.byteCount = function(s) {
         return encodeURI(s).split(/%..|./).length - 1;
+    };
+
+    $scope.scaleCharts = function(scale){
+        $scope.scale[0] = Math.ceil(($scope.timingMetrics.reduce(function(a,b){
+            return a+b;
+        })/$scope.timingMetrics.length-1)*scale);
     };
 
     //Check metrics size and messages size
@@ -87,12 +111,29 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
             channel:$scope.client,
             message: {
                 channel: $scope.client,
-                message: $scope.text,
+                message: $scope.makeMessage($scope.messageSize),
                 time: new Date()
             }
         });
         $scope.text = '';
     };
+    $scope.streamMessages = function(){
+
+        if(!$scope.interval){
+            notify({message: 'Set streaming interval`' });
+            return
+        }
+        if($scope.timer){
+            $interval.cancel($scope.timer);
+            $scope.timer = null;
+            notify({message: 'Stream is closed'});
+            return
+        }else{
+            $scope.timer = $interval($scope.sendMessage, $scope.interval);
+            notify({message: 'Stream is open' });
+        }
+    };
+
 
     //Send request to signaling server
     $scope.startACall = function(){
@@ -139,7 +180,8 @@ angular.module('myApp').controller('ChatCtrl', function($rootScope, $scope, $mod
     $scope.series = ['Delay in ms', 'Byte length of the message'];
     $scope.data = [
         $scope.timingMetrics,
-        $scope.byteMetrics
+        $scope.byteMetrics,
+        $scope.scale
     ];
     $scope.onClick = function (points, evt) {
         console.log(points, evt);

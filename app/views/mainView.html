@@ -3,8 +3,6 @@
         <nav>
             <ul class="nav nav-pills pull-right">
                 <li role="presentation" class="active"><a class="btn btn-lg btn-success" ng-click="startACall()" role="button">Make a call</a></li>
-                <li role="presentation"><a href="#">About</a></li>
-                <li role="presentation"><a href="#">Contact</a></li>
             </ul>
         </nav>
         <h3 class="text-muted"> <h2>Your number is: {{client}}</h2></h3>
@@ -13,34 +11,63 @@
     <div class="jumbotron">
         <div class="row">
             <div class="col-md-6 metrics">
-                <h4>Metrics window</h4>
+                <h2>Metrics window</h2>
                 <canvas id="line" class="chart chart-line" data="data"
                         labels="labels" legend="true" series="series"
                         click="onClick">
                 </canvas>
+                <div class="metrics-control">
+                    <span>Delay</span>
+                    <span ng-click="scaleCharts(1)">1</span>
+                    <span ng-click="scaleCharts(10)">10</span>
+                    <span ng-click="scaleCharts(100)">100</span>
+                    <span>Scale</span>
+                </div>
             </div>
             <div class="col-md-6 chat-window">
-                <h4>Chat window</h4>
-                <div class='chat-messages' ng-repeat="message in messages">
-                    <span ng-show="message.channel == client">You: </span>
-                    <span  ng-show="message.channel != client">{{message.channel}}:</span>
-                    {{message.message}}
-                </div>
+                <h2>Stats</h2>
+                <div><p>Message:{{byteMetrics[byteMetrics.length-1]}}</p></div>
+                <div><p>Encryptions: false</p></div>
+                <div><p>Delay to recipient: {{timingMetrics[timingMetrics.length-1]}}</p></div>
             </div>
         </div>
     </div>
 
-<div ng-include = "'views/modalTemplate.html'"></div>
-<div ng-include = "'views/acceptModal.html'"></div>
-<div ng-include = "'views/inviteModal.html'"></div>
-<div ng-include = "'views/rejectModal.html'"></div>
+    <div class="jumbotron">
+        <div class="row">
+            <div class="col-md-12 control-panel">
+                <h2>Control Panel</h2>
+                <div class="row">
+                    <form>
+                        <div class="col-md-2">
+                            <input type="submit" value="Send Message" ng-click="sendMessage()"/>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" ng-model="messageSize"/>
+                            <span>bytes</span>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <form>
+                    <div class="col-md-2">
+                        <input type="submit" value="Stream Data" ng-click="streamMessages()"/>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" ng-model="messageSize"/>
+                        <span>bytes</span>
+                        <input type="text" ng-model="interval"/>
+                        <span>ms</span>
+                    </div>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-include = "'views/modalTemplate.html'"></div>
+    <div ng-include = "'views/acceptModal.html'"></div>
+    <div ng-include = "'views/inviteModal.html'"></div>
+    <div ng-include = "'views/rejectModal.html'"></div>
 </div> <!-- /container -->
-<div class="container">
-<div class="chat-row row">
-    <form>
-      <input class="chat-input" type="text" ng-model="text" placeholder="Say:"/>
-     <input class="chat-submit" type="submit" ng-click="sendMessage()"/>
- </form>
-
-</div>
+<div ui-view=""></div>
 </div>
