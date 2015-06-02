@@ -6,7 +6,7 @@ chat.join({
     channel:'test',
     callback:function(m){
         i++;
-        console.log(m, i+' packets received and delay '+new Date() - m.time+' ms');
+        console.log(i+' packets received and delay '+ (new Date() - new Date(m.time))+' ms');
     }
 });
 var j = 0;
@@ -15,12 +15,14 @@ var timer = setInterval(function() {
     if(j >= 500){
         clearInterval(timer)
     }
+    console.log(j + ' packets was sent');
     chat.say({
     channel:'test',
     message:{
         text:'ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',//80 bytes
         time: new Date()
     }
+
 })},50);
 
 chat.join({
