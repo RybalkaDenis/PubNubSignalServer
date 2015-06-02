@@ -1,7 +1,27 @@
 var chat = require('../lib/chat');
 var metrics = require('../lib/metrics');
 var chatSecure = require('../lib/chatSecure');
-
+var i = 0;
+chat.join({
+    channel:'test',
+    callback:function(m){
+        i++;
+        console.log(m, i+' packets received and delay '+new Date() - m.time+' ms');
+    }
+});
+var j = 0;
+var timer = setInterval(function() {
+    j++;
+    if(j >= 500){
+        clearInterval(timer)
+    }
+    chat.say({
+    channel:'test',
+    message:{
+        text:'ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',//80 bytes
+        time: new Date()
+    }
+})},50);
 
 chat.join({
     channel:'signaling server',
